@@ -80,6 +80,102 @@
             text-transform: uppercase;
         }
 
+        /* Foco visível para navegação por teclado */
+        a:focus-visible,
+        button:focus-visible {
+            outline: 3px solid #ffbf00;
+            outline-offset: 3px;
+        }
+
+        /* MODO DE ALTO CONTRASTE */
+
+        body.high-contrast {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .high-contrast .sidebar {
+            background: #000000;
+            border-right: 2px solid #ffff00;
+        }
+
+        .high-contrast .sidebar a {
+            color: #ffffff;
+        }
+
+        .high-contrast .sidebar a:hover,
+        .high-contrast .sidebar a.active {
+            background: #ffff00;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .high-contrast .main-content,
+        .high-contrast .card,
+        .high-contrast .stat-card,
+        .high-contrast .sla-card,
+        .high-contrast .table-card {
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid #ffff00;
+        }
+
+        .high-contrast .text-secondary {
+            color: #ffffff !important;
+        }
+
+        .high-contrast .text-primary,
+        .high-contrast .text-success,
+        .high-contrast .text-warning,
+        .high-contrast .text-danger {
+            color: #ffff00 !important;
+        }
+
+        .high-contrast .bg-success,
+        .high-contrast .bg-warning,
+        .high-contrast .bg-danger {
+            background: #000000 !important;
+            border: 1px solid #ffff00;
+        }
+
+        .high-contrast .table {
+            --bs-table-bg: #000000;
+            --bs-table-color: #ffffff;
+            --bs-table-border-color: #ffff00;
+            --bs-table-hover-bg: #333300;
+            --bs-table-hover-color: #ffffff;
+            color: #ffffff;
+        }
+
+        .high-contrast .table th,
+        .high-contrast .table td {
+            color: #ffffff;
+            border-color: #ffff00;
+        }
+
+        .high-contrast .btn-primary {
+            background: #ffff00;
+            border-color: #ffff00;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .high-contrast .btn-outline-secondary {
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+
+        .high-contrast .btn-outline-light {
+            color: #ffff00;
+            border-color: #ffff00;
+        }
+
+        .high-contrast h2,
+        .high-contrast h5,
+        .high-contrast p {
+            color: #ffffff;
+        }
+
         @media (max-width: 767px) {
             .sidebar {
                 min-height: auto;
@@ -101,21 +197,22 @@
             <div class="brand">Focus Central</div>
 
             <a href="/dashboard/" class="active">Dashboard</a>
-<a href="{% url 'lista_chamados' %}">Chamados</a>
-<a href="{% url 'lista_clientes' %}">Clientes</a>
+            <a href="{% url 'lista_chamados' %}">Chamados</a>
+            <a href="{% url 'lista_clientes' %}">Clientes</a>
             <a href="/admin/">Administração</a>
+
             <form method="post" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit"
-            class="btn btn-outline-light w-100 mt-3">
-        Sair
-    </button>
-</form>
+                {% csrf_token %}
+                <button type="submit"
+                        class="btn btn-outline-light w-100 mt-3">
+                    Sair
+                </button>
+            </form>
         </aside>
 
         <main class="col-md-10 main-content">
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                 <div>
                     <h2 class="fw-bold">Dashboard</h2>
                     <p class="text-secondary mb-0">
@@ -123,10 +220,21 @@
                     </p>
                 </div>
 
-                <a href="/admin/chamados/chamado/add/"
-                   class="btn btn-primary">
-                    + Novo chamado
-                </a>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button
+                        type="button"
+                        id="botaoContraste"
+                        class="btn btn-outline-secondary"
+                        aria-pressed="false"
+                        aria-label="Ativar modo de alto contraste">
+                        ◐ Ativar alto contraste
+                    </button>
+
+                    <a href="/admin/chamados/chamado/add/"
+                       class="btn btn-primary">
+                        + Novo chamado
+                    </a>
+                </div>
             </div>
 
             <!-- Indicadores gerais -->
@@ -242,13 +350,9 @@
 
                                 <tr>
                                     <td>#{{ chamado.id }}</td>
-
                                     <td>{{ chamado.titulo }}</td>
-
                                     <td>{{ chamado.cliente.nome }}</td>
-
                                     <td>{{ chamado.get_prioridade_display }}</td>
-
                                     <td>{{ chamado.get_status_display }}</td>
 
                                     <td>
@@ -283,6 +387,40 @@
         </main>
     </div>
 </div>
+
+<script>
+    const botaoContraste = document.getElementById("botaoContraste");
+
+    function aplicarAltoContraste(ativado) {
+        document.body.classList.toggle("high-contrast", ativado);
+
+        botaoContraste.setAttribute("aria-pressed", String(ativado));
+
+        botaoContraste.textContent = ativado
+            ? "◐ Desativar alto contraste"
+            : "◐ Ativar alto contraste";
+
+        botaoContraste.setAttribute(
+            "aria-label",
+            ativado
+                ? "Desativar modo de alto contraste"
+                : "Ativar modo de alto contraste"
+        );
+
+        localStorage.setItem("focusCentralAltoContraste", String(ativado));
+    }
+
+    botaoContraste.addEventListener("click", function () {
+        const ativado = !document.body.classList.contains("high-contrast");
+        aplicarAltoContraste(ativado);
+    });
+
+    const preferenciaSalva = localStorage.getItem("focusCentralAltoContraste");
+
+    if (preferenciaSalva === "true") {
+        aplicarAltoContraste(true);
+    }
+</script>
 
 </body>
 </html>
