@@ -1,0 +1,288 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Focus Central | Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f6f9;
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            background: #172b4d;
+            min-height: 100vh;
+            color: white;
+            padding: 25px 18px;
+        }
+
+        .brand {
+            font-size: 23px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #d5deeb;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: #29466f;
+            color: white;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .stat-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 20px;
+            height: 100%;
+        }
+
+        .stat-number {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .sla-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 20px;
+        }
+
+        .table-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .table-card th {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 767px) {
+            .sidebar {
+                min-height: auto;
+            }
+
+            .main-content {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <aside class="col-md-2 sidebar">
+            <div class="brand">Focus Central</div>
+
+            <a href="/dashboard/" class="active">Dashboard</a>
+<a href="{% url 'lista_chamados' %}">Chamados</a>
+<a href="{% url 'lista_clientes' %}">Clientes</a>
+            <a href="/admin/">Administração</a>
+            <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit"
+            class="btn btn-outline-light w-100 mt-3">
+        Sair
+    </button>
+</form>
+        </aside>
+
+        <main class="col-md-10 main-content">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold">Dashboard</h2>
+                    <p class="text-secondary mb-0">
+                        Visão geral dos atendimentos
+                    </p>
+                </div>
+
+                <a href="/admin/chamados/chamado/add/"
+                   class="btn btn-primary">
+                    + Novo chamado
+                </a>
+            </div>
+
+            <!-- Indicadores gerais -->
+
+            <div class="row g-3 mb-4">
+
+                <div class="col-md-3 col-6">
+                    <div class="card stat-card">
+                        <div class="text-secondary">Total de chamados</div>
+                        <div class="stat-number text-primary">
+                            {{ total_chamados }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                    <div class="card stat-card">
+                        <div class="text-secondary">Abertos</div>
+                        <div class="stat-number text-warning">
+                            {{ abertos }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                    <div class="card stat-card">
+                        <div class="text-secondary">Em atendimento</div>
+                        <div class="stat-number text-primary">
+                            {{ em_atendimento }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                    <div class="card stat-card">
+                        <div class="text-secondary">Concluídos</div>
+                        <div class="stat-number text-success">
+                            {{ concluidos }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Indicadores de SLA -->
+
+            <div class="card sla-card mb-4">
+                <h5 class="fw-bold mb-3">Acompanhamento de SLA</h5>
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <div class="p-3 rounded bg-success bg-opacity-10">
+                            <div class="text-success fw-bold">
+                                Dentro do prazo
+                            </div>
+                            <div class="stat-number text-success">
+                                {{ sla_dentro }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="p-3 rounded bg-warning bg-opacity-10">
+                            <div class="text-warning fw-bold">
+                                Próximos do vencimento
+                            </div>
+                            <div class="stat-number text-warning">
+                                {{ sla_proximos }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="p-3 rounded bg-danger bg-opacity-10">
+                            <div class="text-danger fw-bold">
+                                Vencidos
+                            </div>
+                            <div class="stat-number text-danger">
+                                {{ sla_vencidos }}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Chamados recentes -->
+
+            <div class="card table-card">
+                <div class="card-body">
+
+                    <h5 class="fw-bold mb-3">Chamados recentes</h5>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle">
+
+                            <thead>
+                                <tr>
+                                    <th>Número</th>
+                                    <th>Título</th>
+                                    <th>Cliente</th>
+                                    <th>Prioridade</th>
+                                    <th>Status</th>
+                                    <th>Responsável</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for chamado in chamados_recentes %}
+
+                                <tr>
+                                    <td>#{{ chamado.id }}</td>
+
+                                    <td>{{ chamado.titulo }}</td>
+
+                                    <td>{{ chamado.cliente.nome }}</td>
+
+                                    <td>{{ chamado.get_prioridade_display }}</td>
+
+                                    <td>{{ chamado.get_status_display }}</td>
+
+                                    <td>
+                                        {% if chamado.responsavel %}
+                                            {{ chamado.responsavel.username }}
+                                        {% else %}
+                                            <span class="text-secondary">
+                                                Não atribuído
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                {% empty %}
+
+                                <tr>
+                                    <td colspan="6" class="text-center text-secondary">
+                                        Nenhum chamado cadastrado.
+                                    </td>
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+</body>
+</html>

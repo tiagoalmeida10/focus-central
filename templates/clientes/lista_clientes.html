@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes | Focus Central</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body { background: #f4f6f9; font-family: Arial, sans-serif; }
+        .sidebar { background: #172b4d; min-height: 100vh; color: white; padding: 25px 18px; }
+        .brand { font-size: 23px; font-weight: bold; margin-bottom: 40px; }
+        .sidebar a { display: block; color: #d5deeb; text-decoration: none; padding: 12px; border-radius: 6px; margin-bottom: 8px; }
+        .sidebar a:hover, .sidebar a.active { background: #29466f; color: white; }
+        .main-content { padding: 30px; }
+        .content-card { border: none; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .table th { font-size: 12px; color: #6c757d; text-transform: uppercase; white-space: nowrap; }
+        .table td { vertical-align: middle; }
+        @media (max-width: 767px) {
+            .sidebar { min-height: auto; }
+            .main-content { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <aside class="col-md-2 sidebar">
+            <div class="brand">Focus Central</div>
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'lista_chamados' %}">Chamados</a>
+            <a href="{% url 'lista_clientes' %}" class="active">Clientes</a>
+            <a href="/admin/">Administração</a>
+
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-light w-100 mt-3">Sair</button>
+            </form>
+        </aside>
+
+        <main class="col-md-10 main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <div>
+                    <h2 class="fw-bold">Clientes</h2>
+                    <p class="text-secondary mb-0">Consulte e gerencie os clientes cadastrados.</p>
+                </div>
+                <a href="{% url 'novo_cliente' %}" class="btn btn-primary">+ Novo cliente</a>
+            </div>
+
+            <div class="card content-card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-2">
+                        <div class="col-md-9">
+                            <input type="text" name="busca" value="{{ busca }}"
+                                   class="form-control"
+                                   placeholder="Pesquisar por nome, documento ou e-mail">
+                        </div>
+                        <div class="col-md-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Pesquisar</button>
+                            <a href="{% url 'lista_clientes' %}" class="btn btn-outline-secondary">Limpar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card content-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5 class="fw-bold mb-0">Lista de clientes</h5>
+                        <span class="text-secondary">{{ clientes|length }} registro(s)</span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Documento</th>
+                                    <th>E-mail</th>
+                                    <th>Telefone</th>
+                                    <th>Status</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cliente in clientes %}
+                                <tr>
+                                    <td class="fw-semibold">{{ cliente.nome }}</td>
+                                    <td>{{ cliente.documento }}</td>
+                                    <td>{{ cliente.email|default:"—" }}</td>
+                                    <td>{{ cliente.telefone|default:"—" }}</td>
+                                    <td>
+                                        {% if cliente.ativo %}
+                                            <span class="badge bg-success">Ativo</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inativo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'editar_cliente' cliente.id %}"
+                                           class="btn btn-sm btn-outline-primary">Editar</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-secondary py-4">
+                                        Nenhum cliente encontrado.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>
